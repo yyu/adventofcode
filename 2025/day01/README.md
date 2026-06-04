@@ -1,4 +1,5 @@
---- Day 1: Secret Entrance ---
+**--- Day 1: Secret Entrance ---**
+
 The Elves have good news and bad news.
 
 The good news is that they've discovered [project management](https://en.wikipedia.org/wiki/Project_management)! This has given them the tools they need to prevent their usual Christmas emergency. For example, they now know that the North Pole decorations need to be finished soon so that other critical tasks can start on time.
@@ -58,5 +59,5 @@ Following these rotations would cause the dial to move as follows:
 
 Because the dial points at `0` a total of three times during this process, the password in this example is `3`.
 
-Analyze the rotations in your attached document. *What's the actual password to open the door*?
+Analyze the rotations in your attached document. ***What's the actual password to open the door***?
 
