@@ -73,7 +73,7 @@ As you're rolling the snowballs for your snowman, you find another security docu
 
 "Due to newer security protocols, please use *password method 0x434C49434B* until further notice."
 
-You remember from the training seminar that "method 0x434C49434B" means you're actually supposed to count the number of times *any click* causes the dial to point at 0, regardless of whether it happens during a rotation or at the end of one.
+You remember from the training seminar that "method 0x434C49434B" means you're actually supposed to count the number of times *any click* causes the dial to point at `0`, regardless of whether it happens during a rotation or at the end of one.
 
 Following the same rotations as in the above example, the dial points at zero a few extra times during its rotations:
 
@@ -91,7 +91,7 @@ Following the same rotations as in the above example, the dial points at zero a 
 
 In this example, the dial points at `0` three times at the end of a rotation, plus three more times during a rotation. So, in this example, the new password would be `6`.
 
-Be careful: if the dial were pointing at 50, a single rotation like R1000 would cause the dial to point at 0 ten times before returning back to 50!
+Be careful: if the dial were pointing at `50`, a single rotation like `R1000` would cause the dial to point at `0` ten times before returning back to `50`!
 
 Using password method 0x434C49434B, ***what is the password to open the door***?
 

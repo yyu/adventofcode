@@ -4783,7 +4783,7 @@ static ROTATIONS: [&str; 4780] = [
 
 static DIAL_LEN: u32 = 100;
 
-fn rotate(start_pos: u32, rotation: &str) -> u32 {
+fn rotate(start_pos: u32, rotation: &str, count_of_zeros: &mut u32) -> u32 {
     let (dir, step_nr) = rotation.split_at(1); // split or panic
 
     let step_nr: u32 = match step_nr.parse() {
@@ -4798,19 +4798,60 @@ fn rotate(start_pos: u32, rotation: &str) -> u32 {
         _ => panic!("Rotation should start with L or R: {}", rotation)
     };
 
+    if end_pos == 0 {
+        *count_of_zeros += 1;
+    }
+
+    end_pos
+}
+
+fn rotate2(start_pos: u32, rotation: &str, count_of_zeros: &mut u32) -> u32 {
+    let (dir, step_nr) = rotation.split_at(1); // split or panic
+
+    let step_nr: u32 = match step_nr.parse() {
+        Ok(num) => num,
+        Err(_) => panic!("Invalid number: {} (Rotation: {})", step_nr, rotation)
+    };
+    *count_of_zeros += step_nr / DIAL_LEN;
+    let step_nr = step_nr % DIAL_LEN;
+
+    let end_pos = match dir {
+        "L" => {
+            if step_nr > start_pos {
+                *count_of_zeros += 1;
+            }
+            (start_pos + DIAL_LEN - step_nr) % DIAL_LEN
+        },
+        "R" => {
+            if start_pos + step_nr > DIAL_LEN {
+                *count_of_zeros += 1;
+            }
+            (start_pos + step_nr) % DIAL_LEN
+        },
+        _ => panic!("Rotation should start with L or R: {}", rotation)
+    };
+
+    if end_pos == 0 {
+        *count_of_zeros += 1;
+    }
+
     end_pos
 }
 
 fn main() {
-    println!("Hello, world!");
+    // Part One
     let mut pos = 50;
-    let mut count_of_zeros = 0;
-
+    let mut count_of_zeros_part_1 = 0;
     for rotation in &ROTATIONS {
-        pos = rotate(pos, rotation);
-        if pos == 0 {
-            count_of_zeros += 1;
-        }
+        pos = rotate(pos, rotation, &mut count_of_zeros_part_1);
     }
-    println!("Answer: {}", count_of_zeros);
+    println!("Answer: {}", count_of_zeros_part_1);
+
+    // Part Two
+    let mut pos = 50;
+    let mut count_of_zeros_part_2 = 0;
+    for rotation in &ROTATIONS {
+        pos = rotate2(pos, rotation, &mut count_of_zeros_part_2);
+    }
+    println!("Answer: {}", count_of_zeros_part_2);
 }
