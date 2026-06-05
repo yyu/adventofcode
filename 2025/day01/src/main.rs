@@ -4783,7 +4783,9 @@ static ROTATIONS: [&str; 4780] = [
 
 static DIAL_LEN: u32 = 100;
 
-fn rotate(start_pos: u32, rotation: &str, count_of_zeros: &mut u32) -> u32 {
+fn rotate(start_pos: u32, rotation: &str) -> (u32, u32) { // returns (end_pos, count_of_zeros)
+    let mut count_of_zeros = 0;
+
     let (dir, step_nr) = rotation.split_at(1); // split or panic
 
     let step_nr: u32 = match step_nr.parse() {
@@ -4799,43 +4801,95 @@ fn rotate(start_pos: u32, rotation: &str, count_of_zeros: &mut u32) -> u32 {
     };
 
     if end_pos == 0 {
-        *count_of_zeros += 1;
+        count_of_zeros += 1;
     }
 
-    end_pos
+    (end_pos, count_of_zeros)
 }
 
-fn rotate2(start_pos: u32, rotation: &str, count_of_zeros: &mut u32) -> u32 {
+// this is more complicated thant it needs to be, but it's a valid solution
+fn rotate2(start_pos: u32, rotation: &str) -> (u32, u32) { // returns (end_pos, count_of_zeros)
+    let mut count_of_zeros = 0;
+
     let (dir, step_nr) = rotation.split_at(1); // split or panic
 
     let step_nr: u32 = match step_nr.parse() {
         Ok(num) => num,
         Err(_) => panic!("Invalid number: {} (Rotation: {})", step_nr, rotation)
     };
-    *count_of_zeros += step_nr / DIAL_LEN;
+    count_of_zeros += step_nr / DIAL_LEN;
     let step_nr = step_nr % DIAL_LEN;
 
+    // we will increase count_of_zeros iff we *pass* number 0;
+    // do nothing if we *stop at* number 0 because that's handled later
     let end_pos = match dir {
-        "L" => {
-            if step_nr > start_pos {
-                *count_of_zeros += 1;
-            }
-            (start_pos + DIAL_LEN - step_nr) % DIAL_LEN
-        },
         "R" => {
             if start_pos + step_nr > DIAL_LEN {
-                *count_of_zeros += 1;
+                count_of_zeros += 1;
             }
             (start_pos + step_nr) % DIAL_LEN
+        },
+        "L" => {
+            // imagine the dial has a back side that looks exactly the same as the front, then
+            //   1. if we poke number 1 from the front we will also hit number 99 in the back
+            //      similarly, if we poke number x from the front we will hit number (DIAL_LEN - start_pos) % DIAL_LEN in the back
+            //   2. rotating Left in the front is equivalent to rotating Right in the back
+            // Test cases:
+            //   * {start_pos:  1, rotation: "L1"  }
+            //   * {start_pos:  1, rotation: "L2"  }
+            //   * {start_pos:  0, rotation: "L100"}
+            //   * {start_pos:  0, rotation: "L99" }
+            //   * {start_pos: 99, rotation: "L99" }
+            //   * {start_pos: 99, rotation: "L98" }
+            if (DIAL_LEN - start_pos) % DIAL_LEN + step_nr > DIAL_LEN {
+                count_of_zeros += 1;
+            }
+            (start_pos + DIAL_LEN - step_nr) % DIAL_LEN
         },
         _ => panic!("Rotation should start with L or R: {}", rotation)
     };
 
     if end_pos == 0 {
-        *count_of_zeros += 1;
+        count_of_zeros += 1;
     }
 
-    end_pos
+    // println!("({}, {}) --> ({}, {})", start_pos, rotation, end_pos, count_of_zeros);
+    (end_pos, count_of_zeros)
+}
+
+fn rotate2v2(start_pos: u32, rotation: &str) -> (u32, u32) { // returns (end_pos, count_of_zeros)
+    let mut count_of_zeros = 0;
+
+    let (dir, step_nr) = rotation.split_at(1); // split or panic
+
+    let step_nr: u32 = match step_nr.parse() {
+        Ok(num) => num,
+        Err(_) => panic!("Invalid number: {} (Rotation: {})", step_nr, rotation)
+    };
+    count_of_zeros += step_nr / DIAL_LEN;
+    let step_nr = step_nr % DIAL_LEN;
+
+    let end_pos = match dir {
+        "R" => {
+            if start_pos + step_nr >= DIAL_LEN {
+                count_of_zeros += 1;
+            }
+            (start_pos + step_nr) % DIAL_LEN
+        },
+        "L" => {
+            let steps_needed_to_arrive_at_zero = match start_pos {
+                0 => 100,
+                x => x,
+            };
+            if step_nr >= steps_needed_to_arrive_at_zero {
+                count_of_zeros += 1;
+            }
+            (start_pos + DIAL_LEN - step_nr) % DIAL_LEN
+        },
+        _ => panic!("Rotation should start with L or R: {}", rotation)
+    };
+
+    (end_pos, count_of_zeros)
 }
 
 fn main() {
@@ -4843,7 +4897,9 @@ fn main() {
     let mut pos = 50;
     let mut count_of_zeros_part_1 = 0;
     for rotation in &ROTATIONS {
-        pos = rotate(pos, rotation, &mut count_of_zeros_part_1);
+        let (end_pos, count_of_zeros) = rotate(pos, rotation);
+        pos = end_pos;
+        count_of_zeros_part_1 += count_of_zeros;
     }
     println!("Answer: {}", count_of_zeros_part_1);
 
@@ -4851,7 +4907,19 @@ fn main() {
     let mut pos = 50;
     let mut count_of_zeros_part_2 = 0;
     for rotation in &ROTATIONS {
-        pos = rotate2(pos, rotation, &mut count_of_zeros_part_2);
+        let (end_pos, count_of_zeros) = rotate2(pos, rotation);
+        pos = end_pos;
+        count_of_zeros_part_2 += count_of_zeros;
+    }
+    println!("Answer: {}", count_of_zeros_part_2);
+
+    // Part Two v2
+    let mut pos = 50;
+    let mut count_of_zeros_part_2 = 0;
+    for rotation in &ROTATIONS {
+        let (end_pos, count_of_zeros) = rotate2v2(pos, rotation);
+        pos = end_pos;
+        count_of_zeros_part_2 += count_of_zeros;
     }
     println!("Answer: {}", count_of_zeros_part_2);
 }
