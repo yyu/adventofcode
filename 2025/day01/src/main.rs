@@ -9,7 +9,9 @@ impl std::str::FromStr for Rotate {
     type Err = String;
 
     fn from_str(input: &str) -> Result<Rotate, Self::Err> {
-        let (dir, steps) = input.split_at(1); // split or panic
+        let (dir, steps) = input
+            .split_at_checked(1)
+            .ok_or(format!("Failed to split {input}"))?;
         let steps: i32 = steps.parse().map_err(|e| {
             format!(
                 "Failed to parse number of steps in rotation `{}`: {}",
@@ -54,16 +56,8 @@ fn rotate2(start_pos: i32, rotation: &str) -> Result<(i32, i32), String> {
             (start_pos + steps).rem_euclid(DIAL_LEN)
         }
         Rotate::Left(steps) => {
-            let start_pos = match start_pos {
-                0 => 100,
-                x => x,
-            };
-            count_of_zeros += -(start_pos - steps).div_euclid(DIAL_LEN);
-            let end_pos = (start_pos - steps).rem_euclid(DIAL_LEN);
-            if end_pos == 0 {
-                count_of_zeros += 1;
-            }
-            end_pos
+            count_of_zeros += (((DIAL_LEN - start_pos) % DIAL_LEN) + steps).div_euclid(DIAL_LEN);
+            (start_pos - steps).rem_euclid(DIAL_LEN)
         }
     };
 
