@@ -10,7 +10,12 @@ impl std::str::FromStr for Rotate {
 
     fn from_str(input: &str) -> Result<Rotate, Self::Err> {
         let (dir, steps) = input.split_at(1); // split or panic
-        let steps: i32 = steps.parse().map_err(|e| { format!("Failed to parse number of steps in rotation `{}`: {}", input, e) })?;
+        let steps: i32 = steps.parse().map_err(|e| {
+            format!(
+                "Failed to parse number of steps in rotation `{}`: {}",
+                input, e
+            )
+        })?;
         Ok(match dir {
             "L" => Rotate::Left(steps),
             "R" => Rotate::Right(steps),
@@ -19,14 +24,16 @@ impl std::str::FromStr for Rotate {
     }
 }
 
-fn rotate(start_pos: i32, rotation: &str) -> Result<(i32, i32), String> { // returns (end_pos, count_of_zeros) or an error string
+// returns (end_pos, count_of_zeros) or an error string
+fn rotate(start_pos: i32, rotation: &str) -> Result<(i32, i32), String> {
     let mut count_of_zeros = 0;
 
     let rotate: Rotate = rotation.parse()?;
     let end_pos = match rotate {
         Rotate::Left(steps) => start_pos - steps,
         Rotate::Right(steps) => start_pos + steps,
-    }.rem_euclid(DIAL_LEN);
+    }
+    .rem_euclid(DIAL_LEN);
 
     if end_pos == 0 {
         count_of_zeros += 1;
@@ -35,7 +42,8 @@ fn rotate(start_pos: i32, rotation: &str) -> Result<(i32, i32), String> { // ret
     Ok((end_pos, count_of_zeros))
 }
 
-fn rotate2(start_pos: i32, rotation: &str) -> Result<(i32, i32), String> { // returns (end_pos, count_of_zeros) or an error string
+// returns (end_pos, count_of_zeros) or an error string
+fn rotate2(start_pos: i32, rotation: &str) -> Result<(i32, i32), String> {
     let mut count_of_zeros = 0;
 
     let rotate = rotation.parse()?;
@@ -44,7 +52,7 @@ fn rotate2(start_pos: i32, rotation: &str) -> Result<(i32, i32), String> { // re
         Rotate::Right(steps) => {
             count_of_zeros += (start_pos + steps).div_euclid(DIAL_LEN);
             (start_pos + steps).rem_euclid(DIAL_LEN)
-        },
+        }
         Rotate::Left(steps) => {
             let start_pos = match start_pos {
                 0 => 100,
@@ -56,7 +64,7 @@ fn rotate2(start_pos: i32, rotation: &str) -> Result<(i32, i32), String> { // re
                 count_of_zeros += 1;
             }
             end_pos
-        },
+        }
     };
 
     // println!("({}, {}) --> ({}, {})", start_pos, rotation, end_pos, count_of_zeros);
