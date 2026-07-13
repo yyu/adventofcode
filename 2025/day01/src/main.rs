@@ -56,8 +56,11 @@ fn rotate2(start_pos: i32, rotation: &str) -> Result<(i32, i32), String> {
             (start_pos + steps).rem_euclid(DIAL_LEN)
         }
         Rotate::Left(steps) => {
-            // imagine the dial has an overlay with counterclockwise numbers, then left rotation
-            // will be the same as right rotation on the overlay
+            // imagine the dial has a back side that looks exactly the same as the front, then
+            //   1. if we poke number 1 from the front we will also hit number 99 in the back
+            //      similarly, if we poke number x from the front we will hit number
+            //      (DIAL_LEN - start_pos) % DIAL_LEN in the back
+            //   2. rotating Left in the front is equivalent to rotating Right in the back
             let imaginary_pos = (DIAL_LEN - start_pos) % DIAL_LEN;
             count_of_zeros += (imaginary_pos + steps).div_euclid(DIAL_LEN);
 
