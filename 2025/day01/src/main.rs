@@ -56,7 +56,11 @@ fn rotate2(start_pos: i32, rotation: &str) -> Result<(i32, i32), String> {
             (start_pos + steps).rem_euclid(DIAL_LEN)
         }
         Rotate::Left(steps) => {
-            count_of_zeros += (((DIAL_LEN - start_pos) % DIAL_LEN) + steps).div_euclid(DIAL_LEN);
+            // imagine the dial has an overlay with counterclockwise numbers, then left rotation
+            // will be the same as right rotation on the overlay
+            let imaginary_pos = (DIAL_LEN - start_pos) % DIAL_LEN;
+            count_of_zeros += (imaginary_pos + steps).div_euclid(DIAL_LEN);
+
             (start_pos - steps).rem_euclid(DIAL_LEN)
         }
     };
