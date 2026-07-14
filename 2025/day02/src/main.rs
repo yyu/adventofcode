@@ -27,19 +27,18 @@ impl std::str::FromStr for ProdIdRange {
 
 impl ProdIdRange {
     fn sum_repeat(&self) -> i128 {
-        let mut sum = 0;
-        for x in self.first..=self.last {
-            let s = x.to_string();
-            if s.len() % 2 != 0 {
-                continue;
-            }
-            let mid = s.len() / 2;
-            if s[..mid] == s[mid..] {
-                sum += x;
-                // println!("{:?} {x}", self);
-            }
-        }
-        sum
+        (self.first..=self.last)
+            .map(|x| {
+                let s = x.to_string();
+                let mid = s.len() / 2;
+                if s.len() % 2 == 0 && s[..mid] == s[mid..] {
+                    // println!("{:?} {x}", self);
+                    x
+                } else {
+                    0
+                }
+            })
+            .sum()
     }
 }
 
@@ -58,6 +57,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .sum();
 
     println!("{answer}");
+
+    assert_eq!(38437576669, answer);
 
     Ok(())
 }
