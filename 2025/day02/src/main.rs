@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 #[derive(Debug)]
 struct ProdIdRange {
     first: i128,
@@ -25,8 +27,27 @@ impl std::str::FromStr for ProdIdRange {
     }
 }
 
+fn count_digits(x: i128) -> u32 {
+    if x < 0 {
+        return count_digits(-x);
+    }
+
+    if x == 0 {
+        return 1;
+    }
+
+    let mut x = x;
+    let mut count = 0;
+    while x > 0 {
+        count += 1;
+        x /= 10;
+    }
+    count
+}
+
 impl ProdIdRange {
-    fn sum_repeat(&self) -> i128 {
+    // string manipulation -- more readable but slow
+    fn sum_repeat1(&self) -> i128 {
         (self.first..=self.last)
             .map(|x| {
                 let s = x.to_string();
@@ -40,6 +61,27 @@ impl ProdIdRange {
             })
             .sum()
     }
+
+    // number manipulation -- faster but slightly more complex
+    fn sum_repeat2(&self) -> i128 {
+        let mut result_sum = 0;
+        let mut x = self.first;
+        while x <= self.last {
+            let digits = count_digits(x);
+            if digits % 2 == 0 {
+                let divider = 10_i128.pow(digits / 2);
+                let upper = x / divider;
+                let candidate = upper * divider + upper;
+                if self.first <= candidate && candidate <= self.last {
+                    result_sum += candidate;
+                }
+                x = (upper + 1) * divider;
+            } else {
+                x *= 10;
+            }
+        }
+        result_sum
+    }
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -52,7 +94,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .map(|s| {
             s.parse::<ProdIdRange>()
                 .expect("Bad range {s}")
-                .sum_repeat()
+                .sum_repeat2()
         })
         .sum();
 
@@ -61,4 +103,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(38437576669, answer);
 
     Ok(())
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_count_digits() {
+        assert_eq!(count_digits(0), 1);
+        assert_eq!(count_digits(3), 1);
+
+        assert_eq!(count_digits(10), 2);
+        assert_eq!(count_digits(19), 2);
+        assert_eq!(count_digits(31415), 5);
+
+        assert_eq!(count_digits(-1), 1);
+        assert_eq!(count_digits(-3), 1);
+        assert_eq!(count_digits(-19), 2);
+    }
 }
