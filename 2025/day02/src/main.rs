@@ -12,9 +12,8 @@ impl std::str::FromStr for ProdIdRange {
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         let numbers: Vec<i128> = input
             .split('-')
-            .map(|s| s.parse::<i128>())
-            .collect::<Result<Vec<_>, _>>()
-            .map_err(|e| format!("Invalid range {input}: {e}."))?;
+            .map(|s| s.parse::<i128>().map_err(|e| format!("Invalid range {input}: {e}.")))
+            .collect::<Result<Vec<_>, _>>()?;
 
         if numbers.len() != 2 {
             return Err(format!("Invalid range: {input}"));
