@@ -90,7 +90,7 @@ impl ProdIdRange {
     }
 
     // use regex -- slow
-    fn sum_repeat_n_str(&self) -> i128 {
+    fn sum_repeat_n_regex(&self) -> i128 {
         (self.first..=self.last)
             .map(|x| {
                 let s = x.to_string();
@@ -115,7 +115,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .map(|s| {
             s.parse::<ProdIdRange>()
                 .expect("Bad range {s}")
-                .sum_repeat_n_str()
+                .sum_repeat_n_regex()
         })
         .sum();
 
