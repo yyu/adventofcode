@@ -46,7 +46,7 @@ fn count_digits(x: i128) -> u32 {
 
 impl ProdIdRange {
     // string manipulation -- more readable but slow
-    fn sum_repeat1(&self) -> i128 {
+    fn sum_repeat_str(&self) -> i128 {
         (self.first..=self.last)
             .map(|x| {
                 let s = x.to_string();
@@ -62,7 +62,7 @@ impl ProdIdRange {
     }
 
     // number manipulation -- faster but slightly more complex
-    fn sum_repeat2(&self) -> i128 {
+    fn sum_repeat_num(&self) -> i128 {
         let mut result_sum = 0;
         let mut x = self.first;
         while x <= self.last {
@@ -85,7 +85,7 @@ impl ProdIdRange {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let input = include_str!("input.txt");
-    println!("{input}");
+    println!("input:\n{input}");
 
     let answer: i128 = input
         .trim()
@@ -93,11 +93,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .map(|s| {
             s.parse::<ProdIdRange>()
                 .expect("Bad range {s}")
-                .sum_repeat2()
+                .sum_repeat_num()
         })
         .sum();
 
-    println!("{answer}");
+    println!("answer:\n{answer}");
 
     assert_eq!(38437576669, answer);
 
