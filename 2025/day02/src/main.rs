@@ -1,5 +1,12 @@
 #![allow(dead_code)]
 
+use fancy_regex::Regex;
+use std::sync::LazyLock;
+
+static N_REPEAT_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"^([0-9]+)\1+$").expect("Failed to compile regex")
+});
+
 #[derive(Debug)]
 struct ProdIdRange {
     first: i128,
@@ -81,6 +88,21 @@ impl ProdIdRange {
         }
         result_sum
     }
+
+    // use regex -- slow
+    fn sum_repeat_n_str(&self) -> i128 {
+        (self.first..=self.last)
+            .map(|x| {
+                let s = x.to_string();
+                if N_REPEAT_REGEX.is_match(&s).unwrap_or(false) {
+                    x
+                } else {
+                    0
+                }
+            })
+            .sum()
+    }
+
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -93,13 +115,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .map(|s| {
             s.parse::<ProdIdRange>()
                 .expect("Bad range {s}")
-                .sum_repeat_num()
+                .sum_repeat_n_str()
         })
         .sum();
 
     println!("answer:\n{answer}");
 
-    assert_eq!(38437576669, answer);
+    // assert_eq!(38437576669, answer);
+    assert_eq!(49046150754, answer);
 
     Ok(())
 }
