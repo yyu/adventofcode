@@ -51,6 +51,15 @@ fn count_digits(x: i128) -> u32 {
     count
 }
 
+// match (.+)\1+ without using regex
+fn is_repeated_digits(s: &str) -> bool {
+    let bytes = s.as_bytes();
+    (1..=(s.len() / 2)).any(|i| {
+        let prefix = &bytes[..i];
+        bytes.chunks(i).all(|chunk| chunk == prefix)
+    })
+}
+
 impl ProdIdRange {
     // string manipulation -- more readable but slow
     fn sum_repeat_str(&self) -> i128 {
@@ -103,6 +112,19 @@ impl ProdIdRange {
             .sum()
     }
 
+    // not the best but faster than the regex version
+    fn sum_repeat_n_str(&self) -> i128 {
+        (self.first..=self.last)
+            .map(|x| {
+                let s = x.to_string();
+                if is_repeated_digits(&s) {
+                    x
+                } else {
+                    0
+                }
+            })
+            .sum()
+    }
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -115,7 +137,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .map(|s| {
             s.parse::<ProdIdRange>()
                 .expect("Bad range {s}")
-                .sum_repeat_n_regex()
+                .sum_repeat_n_str()
         })
         .sum();
 
